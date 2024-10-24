@@ -27,13 +27,49 @@ const ActionProvider = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleGotIt = () => {
-    const botMessage = createChatBotMessage("Enter your Name", {});
+  const handleFirstMessage = (question?: number) => {
+    setState(
+      async (prev: {
+        messages: {
+          message: string;
+          type: string;
+          id: number;
+          loading?: boolean;
+          widget?: string | undefined;
+          delay?: number | undefined;
+          payload?: any;
+        }[];
+      }) => {
+        let botMessage;
+        
+        const exercise = question?.toString()
+        const response = await fetch("http://localhost:6358", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: new URLSearchParams({ 
+            questionNumber: exercise || '',
+            answers: JSON.stringify([]),
+          })
+        });
 
-    setState((prev: any) => ({
-      ...prev,
-      messages: [...prev.messages, botMessage],
-    }));
+        const data = await response.json();
+
+        dispatch(addQuestion(data.lastQuestion || ""))
+        
+        if (response.status == 200) {
+          botMessage = createChatBotMessage(data.lastQuestion || `Diagnóstico: ${data.lastQuestion}`, {});
+        } else {
+          botMessage = createChatBotMessage("Não foi possível identificar.", {});
+        }
+
+        return {
+          ...prev,
+          messages: [...prev.messages, botMessage],
+        };
+      }
+    );
   };
 
   const handleUserInput = (question?: number) => {
@@ -59,7 +95,6 @@ const ActionProvider = ({
           body: new URLSearchParams({ 
             answer: '',
             exercise: exercise || '',
-            lastQuestion: lastQuestion || ''
           })
         });
 
@@ -87,7 +122,7 @@ const ActionProvider = ({
       {React.Children.map(children, (child) => {
         return React.cloneElement(child, {
           actions: {
-            handleGotIt,
+            handleFirstMessage,
             handleUserInput,
           },
         });

@@ -1,4 +1,37 @@
-:- module(questao_1024, [questao/2]).
+:- module(questao_1024, [questao/3]).
+
+% Define a questão 1024
+% Quando recebe answers -> precisa responder as respostas e retornar o resultado pelo Result
+% Quando não recebe answers -> precisa retornar as questões pelo Result
+questao(1024, Answers, Result) :- 
+    clean, % Limpa respostas anteriores
+    ( Answers \= [] -> 
+        process_answers(Answers, Result)
+    ; 
+        % Result deve retornar todas as questões que estão em diagnostico, em ordem
+        Result = ["tem febre?", "tem tosse?", "tem dor de garganta?", "tem dificuldade de respirar?", "tem perda de olfato?", "tem perda de paladar?"]
+    ).
+
+% Processa as respostas fornecidas
+process_answers([], Result) :- 
+    % Verificar se há algum diagnóstico com base nas respostas fornecidas
+    (   diagnostico(Diagnostico)
+    ->  Result = ["Diagnóstico: ", Diagnostico]
+    ;   Result = ["Nenhum diagnóstico encontrado."]
+    ).
+
+process_answers([Answer|Rest], Result) :-
+    % Processar cada resposta, assumindo que está na ordem das perguntas
+    ( Answer = "tem febre?" -> assert(q("tem febre", sim))
+    ; Answer = "tem tosse?" -> assert(q("tem tosse", sim))
+    ; Answer = "tem dor de garganta?" -> assert(q("tem dor de garganta", sim))
+    ; Answer = "tem dificuldade de respirar?" -> assert(q("tem dificuldade de respirar", sim))
+    ; Answer = "tem perda de olfato?" -> assert(q("tem perda de olfato", sim))
+    ; Answer = "tem perda de paladar?" -> assert(q("tem perda de paladar", sim))
+    ; true
+    ),
+    % Recursivamente processar as próximas respostas
+    process_answers(Rest, Result).
 
 % Define o predicado diagnostico/1 para verificar as condições e determinar o diagnóstico
 diagnostico(busqueajuda) :- is_true("tem dificuldade de respirar").
@@ -11,24 +44,7 @@ diagnostico(gripe) :-
     is_true("tem tosse"), 
     is_true("tem dor de garganta").
 
-% Define a questão 1024, que realiza o diagnóstico e retorna a resposta
-questao(1024, Resposta) :- 
-    clean, % Limpa respostas anteriores
-    diagnostico(X), % Chama o diagnóstico baseado nas respostas
-    (
-        X = busqueajuda -> % Se o diagnóstico for busqueajuda
-            Resposta = "Você deve buscar ajuda imediatamente"
-        ;
-        X = covid -> % Se o diagnóstico for covid
-            Resposta = "Você provavelmente possui COVID. Recomendações:\nIsolamento\nHidratação\nAcompanhamento médico"
-        ;
-        X = gripe -> % Se o diagnóstico for gripe
-            Resposta = "Você provavelmente possui gripe. Recomendações:\nRepouso\nHidratação\nUso de analgésicos"
-        ;
-        Resposta = "É sugerido também um teste específico para confirmar o diagnóstico"
-    ).
-
-% is_true/1 pergunta ao usuário se uma determinada condição é verdadeira
+% is_true pergunta ao usuário se uma determinada condição é verdadeira
 is_true(Pergunta) :-
     (q(Pergunta, Resposta) -> 
         Resposta = sim % Se a resposta já for 'sim', retorna verdadeiro

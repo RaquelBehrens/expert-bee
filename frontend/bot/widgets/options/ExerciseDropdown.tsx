@@ -14,7 +14,7 @@ const StyledSelect = styled.select`
 const ExerciseDropdown: React.FC<any> = (props) => {
   const dispatch = useDispatch<AppDispatch>();
   const handleExercise = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    props.actionProvider.handleUserInput(parseInt(e.target.value));
+    props.actionProvider.handleFirstMessage(parseInt(e.target.value));
     setTimeout(() => {
       dispatch(startCount());
     }, 5000);
