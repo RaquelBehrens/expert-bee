@@ -3,7 +3,7 @@ import YesNo from "./widgets/options/YesNo";
 import ExerciseDropdown from "./widgets/options/ExerciseDropdown";
 import IWidget from "react-chatbot-kit/build/src/interfaces/IWidget";
 import IConfig from "react-chatbot-kit/build/src/interfaces/IConfig";
-import chatGPT from "/chatgpt.svg";
+import beeHelper from "/bee_helper.svg";
 
 const config: IConfig = {
   botName: "Beecrowd Specialist",
@@ -21,7 +21,7 @@ const config: IConfig = {
     },
   },
   customComponents: {
-    botAvatar: (props: any) => <img src={chatGPT} alt="bot" {...props} />,
+    botAvatar: (props: any) => <img src={beeHelper} alt="bot" {...props} />,
   },
   widgets: [
     {

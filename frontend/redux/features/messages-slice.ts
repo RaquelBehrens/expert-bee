@@ -2,12 +2,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type MessageState = {
   count: number;
-  question: string;
+  questions: string[];
 };
 
 const initialState = {
   count: -1,
-  question: "",
+  questions: [],
 } as MessageState;
 
 export const messageSlice = createSlice({
@@ -15,10 +15,10 @@ export const messageSlice = createSlice({
   initialState,
   reducers: {
     addQuestion: (state, action: PayloadAction<string>) => {
-      state.question = action.payload;
+      state.questions.push(action.payload);
     },
-    startCount: (state) => {
-      state.count = 5;
+    startCount: (state, action: PayloadAction<number>) => {
+      state.count = action.payload;
     },
     decrementCount: (state) => {
       state.count -= 1;

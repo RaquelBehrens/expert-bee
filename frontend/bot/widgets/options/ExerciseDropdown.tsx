@@ -1,8 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { styled } from "styled-components";
-import { AppDispatch } from "../../../redux/store";
-import { startCount } from "../../../redux/features/messages-slice";
 
 const StyledSelect = styled.select`
   position: relative;
@@ -12,12 +9,8 @@ const StyledSelect = styled.select`
 `;
 
 const ExerciseDropdown: React.FC<any> = (props) => {
-  const dispatch = useDispatch<AppDispatch>();
   const handleExercise = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    props.actionProvider.handleFirstMessage(parseInt(e.target.value));
-    setTimeout(() => {
-      dispatch(startCount());
-    }, 5000);
+    props.actionProvider.handleFirstMessage(e.target.value);
   };
 
   const exercises = [1024, 2048, 5096]

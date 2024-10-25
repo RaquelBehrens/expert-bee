@@ -54,21 +54,21 @@ const StyledChat = styled.div`
 
 const Chat = () => {
   const [isOpened, setIsOpened] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const count = useAppSelector((state) => state.messageReducer.count);
-  const dispatch = useDispatch<AppDispatch>();
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (count > 0) {
-        dispatch(decrementCount());
-      } else if (count === 0) {
-        navigate("/success");
-      }
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [count, dispatch, navigate]);
+  // const navigate = useNavigate();
+  // const count = useAppSelector((state) => state.messageReducer.count);
+  // const dispatch = useDispatch<AppDispatch>();
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (count > 0) {
+  //       dispatch(decrementCount());
+  //     } else if (count === 0) {
+  //       navigate("/success");
+  //     }
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [count, dispatch, navigate]);
   return (
     <StyledChat>
       <div className="intro">

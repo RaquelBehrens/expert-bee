@@ -4,7 +4,6 @@ import { AnimatePresence } from "framer-motion";
 import { Route, Routes, useLocation } from "react-router-dom";
 
 const Chat = lazy(() => import("./page/Chat"));
-const Success = lazy(() => import("./page/Success"));
 const NotFound = lazy(() => import("./page/404"));
 
 const GlobalStyle = createGlobalStyle`
@@ -108,7 +107,6 @@ const App = () => {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Chat />} />
-            <Route path="/success" element={<Success />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
