@@ -28,6 +28,22 @@ const StyledChat = styled.div`
     width: 34.9rem !important;
   }
 
+  .react-chatbot-kit-chat-message-container {
+    height: 35.5rem;
+  }
+
+  .react-chatbot-kit-chat-bot-message-container {
+    & > img {
+      margin-right: 0.8rem;
+    }
+  }
+
+  .react-chatbot-kit-user-chat-message-container {
+    & > img {
+      margin-left: 0.8rem;
+    }
+  }
+
   & .intro {
     height: 9rem;
     text-align: center;
@@ -35,6 +51,7 @@ const StyledChat = styled.div`
       font-size: 3.5rem;
     }
     & > button {
+      color:rgb(var(--dark-color));
       margin-top: 1rem;
       padding: 0.75rem 2rem;
       font-size: 1.5rem;

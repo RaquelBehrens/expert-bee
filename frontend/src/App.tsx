@@ -9,9 +9,9 @@ const NotFound = lazy(() => import("./page/404"));
 const GlobalStyle = createGlobalStyle`
   :root{
     --light-color: 241 241 241;
-    --dark-color: 52 53 65;
-    --primary-color: 55 107 126;
-    --secondary-color: 62 166 255;
+    --dark-color: 52 17 64;
+    --primary-color: 106 36 131;
+    --secondary-color: 169 87 190;
     --tertiary-color: 25 195 125;
     --success-color: 3 179 10;
     --like-color: 16 110 190;

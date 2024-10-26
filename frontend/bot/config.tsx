@@ -4,6 +4,7 @@ import ExerciseDropdown from "./widgets/options/ExerciseDropdown";
 import IWidget from "react-chatbot-kit/build/src/interfaces/IWidget";
 import IConfig from "react-chatbot-kit/build/src/interfaces/IConfig";
 import beeHelper from "/bee_helper.svg";
+import user from "/user.svg";
 
 const config: IConfig = {
   botName: "Beecrowd Specialist",
@@ -14,14 +15,15 @@ const config: IConfig = {
   ],
   customStyles: {
     botMessageBox: {
-      backgroundColor: "#376B7E",
+      backgroundColor: "#6A2483",
     },
     chatButton: {
-      backgroundColor: "#376B7E",
+      backgroundColor: "#6A2483",
     },
   },
   customComponents: {
     botAvatar: (props: any) => <img src={beeHelper} alt="bot" {...props} />,
+    userAvatar: (props: any) => <img src={user} alt="bot" {...props} />
   },
   widgets: [
     {
