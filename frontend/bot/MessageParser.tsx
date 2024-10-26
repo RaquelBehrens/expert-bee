@@ -6,14 +6,13 @@ const MessageParser = ({
 }: {
   children: any;
   actions: {
-    handleFirstMessage: () => void;
-    handleUserInput: () => void;
+    handleFirstMessage: (questionNumber?: string) => void;
+    handleUserInput: (questionNumber: string, answers: string[]) => void;
   };
 }) => {
   
   const parse = (message: string) => {
-    console.log(message)
-    actions.handleFirstMessage();
+    actions.handleFirstMessage(message);
     // if (message.includes("got it!")) {
     //   actions.handleFirstMessage();
     // } else {

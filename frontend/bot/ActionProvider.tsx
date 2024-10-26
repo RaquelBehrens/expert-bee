@@ -29,6 +29,8 @@ const ActionProvider = ({
 
   const handleFirstMessage = async (questionNumber?: string) => {
     let botMessage;
+
+    console.log(questionNumber)
   
     const exercise = questionNumber?.toString();
     const response = await fetch("http://localhost:6358", {
