@@ -21,29 +21,51 @@ server(Port) :-
 % Manipulador de requisições POST
 handle_post_request(Request) :-
     member(method(post), Request), !,
+    
+    % Garante que a sessão está ativa para o cliente
+    http_session_id(_SessionID),
 
     % Lê os dados da requisição, recebendo o número da questão
     http_read_data(Request, Data, [encoding(utf8)]),
-    
-    % Desestrutura a lista de dados
-    member(questionNumber=QN, Data),
-    member(answers=AS, Data),
 
-    % Converte a string de respostas em uma lista
-    atom_to_term(AS, AnswersList, []),
+    (   % Caso seja a primeira requisição da questão
+        member(questionNumber=QN, Data) 
+    ->  % Inicializa a sessão e a questão
+        http_session_retractall(questionNumber),
+        
+        http_session_assert(questionNumber(QN)),
+        start_question(QN, FirstQuestion),
 
-    % Processa a questão com base no número recebido
-    process_questao(QN, AnswersList, Result),
+        % Definindo os headers para permitir CORS
+        format('Access-Control-Allow-Origin: *~n'),
+        format('Content-Type: application/json; charset=UTF-8'),
 
-    % Definindo os headers para permitir CORS
-    format('Access-Control-Allow-Origin: *~n'),
-    format('Content-Type: application/json; charset=UTF-8'),
+        http_session_retractall(answers),
+        http_session_assert(answers("Answers", [])),
 
-    % Envia a resposta em formato JSON
-    reply_json_dict(_{result: Result}).
+        reply_json_dict(_{question: FirstQuestion})
+
+    ;   % Caso receba respostas subsequentes
+        member(answer=Answer, Data),
+        
+        % Garante que a sessão tenha a variável questionNumber
+        ( http_session_data(questionNumber(QN)) ->
+            continue_question(QN, Answer, NextQuestionOrResult),
+            
+            % Definindo os headers para permitir CORS
+            format('Access-Control-Allow-Origin: *~n'),
+            format('Content-Type: application/json; charset=UTF-8'),
+
+            reply_json_dict(NextQuestionOrResult)
+        ;   % Erro caso a sessão não tenha um questionNumber
+            format('Content-Type: application/json; charset=UTF-8~'),
+            reply_json_dict(_{error: "Número da questão não encontrado na sessão"})
+        )
+    ).
+
 
 % Carrega o arquivo de questão com base no número e executa a questão correspondente
-process_questao(QuestionNumber, Answers, Result) :-
+start_question(QuestionNumber, FirstQuestion) :-
     atom_concat('questao_', QuestionNumber, FileName),
     atom_concat(FileName, '.pl', FilePath),
 
@@ -51,11 +73,49 @@ process_questao(QuestionNumber, Answers, Result) :-
     (   exists_file(FilePath)
     ->  % Carrega dinamicamente o arquivo da questão
         ensure_loaded(FilePath),
-        atom_number(QuestionNumber, QN),
+        atom_number(QuestionNumber, QN),        
         
         % Executa o predicado correspondente à questão com o número recebido
-        (   catch(call(questao(QN, Answers, Result)), E2,
-                (Result = ["Erro ao processar a questão: " + E2]))
+        (   catch(call(questao(QN, [], FirstQuestion)), E2,
+                (FirstQuestion = "Erro ao processar a questão: " + E2))
         )
-    ;   Result = ["Questão não encontrada."]
+    ;   FirstQuestion = "Questão não encontrada."
     ).
+
+% Processa a resposta recebida e decide a próxima pergunta ou resultado final
+continue_question(QuestionNumber, Answer, Response) :-
+    (   string(Answer) -> AW = Answer
+    ;   atom(Answer) -> atom_string(Answer, AW)
+    ;   term_string(Answer, AW)
+    ),
+    atom_number(QuestionNumber, QN), 
+
+    % Salva a resposta na sessão
+    http_session_data(answers("Answers", AnswerList)),
+
+    append(AnswerList, [AW], UpdatedAnswers),
+
+    http_session_retractall(answers("Answers", _)),
+    http_session_assert(answers("Answers", UpdatedAnswers)),
+
+    % Chama a questão correspondente com a lista atualizada de respostas
+    (   questao(QN, UpdatedAnswers, NextQuestion)
+    ->  Response = _{question: NextQuestion}
+    ;   final_response(QN, UpdatedAnswers, Result),
+        Response = _{result: Result}
+    ).
+
+% Predicado para determinar o diagnóstico final baseado nas respostas
+final_response(QuestionNumber, Answers, Result) :-
+    process_questao(QuestionNumber, Answers, Result).
+
+% Função para processar o diagnóstico no arquivo `questao_numero.pl`
+process_questao(QuestionNumber, Answers, Result) :-
+    atom_concat('questao_', QuestionNumber, FileName),
+    atom_concat(FileName, '.pl', FilePath),
+    (   exists_file(FilePath)
+    ->  ensure_loaded(FilePath),
+        diagnostico(Answers, Result)
+    ;   Result = "Questão não encontrada."
+    ).
+
