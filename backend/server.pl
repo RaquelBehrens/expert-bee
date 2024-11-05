@@ -8,6 +8,7 @@
 
 % Define o handler para receber as requisições HTTP POST
 :- http_handler(root(.), handle_post_request, [method(post)]).
+:- http_handler(root(diagnosis), handle_get_diagnosis, [method(get)]).
 
 % Inicialização do servidor na porta 6357
 :- initialization main.
@@ -58,7 +59,7 @@ handle_post_request(Request) :-
 
             reply_json_dict(NextQuestionOrResult)
         ;   % Erro caso a sessão não tenha um questionNumber
-            format('Content-Type: application/json; charset=UTF-8~'),
+            format('Content-Type: application/json; charset=UTF-8'),
             reply_json_dict(_{error: "Número da questão não encontrado na sessão"})
         )
     ).
@@ -92,17 +93,38 @@ continue_question(QuestionNumber, Answer, Response) :-
 
     % Salva a resposta na sessão
     http_session_data(answers("Answers", AnswerList)),
-
     append(AnswerList, [AW], UpdatedAnswers),
-
-    http_session_retractall(answers("Answers", _)),
-    http_session_assert(answers("Answers", UpdatedAnswers)),
 
     % Chama a questão correspondente com a lista atualizada de respostas
     (   questao(QN, UpdatedAnswers, NextQuestion)
-    ->  Response = _{question: NextQuestion}
-    ;   final_response(QN, UpdatedAnswers, Result),
-        Response = _{result: Result}
+    ->  Response = _{question: NextQuestion},
+        http_session_retractall(answers("Answers", _)),
+        http_session_assert(answers("Answers", UpdatedAnswers))
+
+    ;   Response = _{result: "Fim"}
+    ).
+
+
+% Manipulador de requisições GET para obter o diagnóstico
+handle_get_diagnosis(_Request) :-
+    % Garante que a sessão está ativa
+    http_session_id(_SessionID),
+    
+    % Verifica se o número da questão e as respostas estão na sessão
+    (   http_session_data(questionNumber(QuestionNumber)),
+        http_session_data(answers("Answers", AnswerList))
+    ->  % Calcula o diagnóstico baseado nas respostas acumuladas
+        atom_number(QuestionNumber, QN), 
+        final_response(QN, AnswerList, Result),
+        
+        format('Access-Control-Allow-Origin: *~n'),
+        format('Content-Type: application/json; charset=UTF-8'),
+        reply_json_dict(_{result: Result})
+
+    ;   % Caso os dados da sessão estejam incompletos
+        format('Access-Control-Allow-Origin: *~n'),
+        format('Content-Type: application/json; charset=UTF-8'),
+        reply_json_dict(_{error: "Número da questão ou respostas não encontradas na sessão"})
     ).
 
 % Predicado para determinar o diagnóstico final baseado nas respostas
@@ -115,7 +137,6 @@ process_questao(QuestionNumber, Answers, Result) :-
     atom_concat(FileName, '.pl', FilePath),
     (   exists_file(FilePath)
     ->  ensure_loaded(FilePath),
-        diagnostico(Answers, Result)
+        diagnostico(QuestionNumber, Answers, Result)
     ;   Result = "Questão não encontrada."
     ).
-
