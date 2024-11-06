@@ -115,10 +115,11 @@ handle_get_diagnosis(Request) :-
     cors_enable(Request, [methods([get])]),
 
     % Garante que a sessão está ativa
-    http_session_id(_SessionID),
+    http_session_id(SessionID),
 
     % Definindo os headers para permitir CORS
     format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Access-Control-Allow-Credentials: true~n'),
     format('Content-Type: application/json; charset=UTF-8'),
     
     % Verifica se o número da questão e as respostas estão na sessão
@@ -131,7 +132,9 @@ handle_get_diagnosis(Request) :-
 
     ;   % Caso os dados da sessão estejam incompletos
         reply_json_dict(_{error: "Número da questão ou respostas não encontradas na sessão"})
-    ).
+    ),
+    
+    http_close_session(SessionID).
 
 % Predicado para determinar o diagnóstico final baseado nas respostas
 final_response(QuestionNumber, Answers, Result) :-

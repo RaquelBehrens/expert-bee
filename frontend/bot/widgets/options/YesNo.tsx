@@ -16,12 +16,12 @@ const GotIt: React.FC<any> = (props) => {
   const options = [
     {
       name: "Sim",
-      handler: props.actionProvider.handleUserInput,
+      handler: props.actionProvider.handleYes,
       id: 1,
     },
     {
       name: "Não",
-      handler: props.actionProvider.handleUserInput,
+      handler: props.actionProvider.handleNo,
       id: 2,
     },
   ];

@@ -17,7 +17,7 @@ const ExerciseDropdown: React.FC<any> = (props) => {
 
   return (
     <StyledSelect onChange={handleExercise} title="Selecione aqui">
-      <option>Selecione aqui ou digite o número da questão</option>
+      <option>Selecione aqui o número da questão</option>
       {Array.from(exercises).map((exercise) => (
         <option key={exercise} value={exercise}>
           {exercise}
