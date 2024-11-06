@@ -29,34 +29,30 @@ const ActionProvider = ({
 
   const handleFirstMessage = async (questionNumber?: string) => {
     let botMessage;
-
-    console.log(questionNumber)
   
     const exercise = questionNumber?.toString();
-    const response = await fetch("http://localhost:6358", {
+    const response = await fetch("http://localhost:6358/server", {
       method: "POST",
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
       },
+      credentials: 'include',
       body: new URLSearchParams({
         questionNumber: exercise || '',
-        answers: JSON.stringify([]),
       }),
     });
   
     const data = await response.json();
-    const questions = data.result;
+    const question = data.question;
   
-    if (response.status === 200 && questions) {
-      questions.forEach((question: string) => {
-        dispatch(addQuestion(question));
-      });
+    if (response.status === 200 && question) {
+      dispatch(addQuestion(question));
   
       setTimeout(() => {
-        dispatch(startCount(questions.length));
+        dispatch(startCount(question.length));
       }, 5000);
 
-      botMessage = createChatBotMessage(questions[0], {});
+      botMessage = createChatBotMessage(question, {});
     } else {
       botMessage = createChatBotMessage("Erro ao consultar o backend.", {});
     }
@@ -77,19 +73,24 @@ const ActionProvider = ({
     }));
   };
 
-  const handleUserInput = async (questionNumber: string, answers: string[]) => {
+  const handleUserInput = async (answer: string) => {
     let botMessage;
   
-    const response = await fetch("http://localhost:6357", {
+    const response = await fetch("http://localhost:6358/server", {
       method: "POST",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      credentials: 'include',
       body: new URLSearchParams({
-        questionNumber: questionNumber,
-        answers: JSON.stringify(answers),
+        answer: answer.toLowerCase()
       }),
     });
   
     const data = await response.json();
     const result = data.result;
+
+    console.log(data)
   
     if (response.status === 200 && result) {
       dispatch(addQuestion(result));

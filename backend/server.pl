@@ -5,10 +5,19 @@
 :- use_module(library(http/http_json)).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_client)).
+:- use_module(library(http/http_cors)).
 
 % Define o handler para receber as requisições HTTP POST
-:- http_handler(root(.), handle_post_request, [method(post)]).
+:- http_handler(root(server), handle_post_request, [method(post)]).
 :- http_handler(root(diagnosis), handle_get_diagnosis, [method(get)]).
+:- http_handler(root(.), handle_options, [method(options)]).
+
+handle_options(_Request) :-
+    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Access-Control-Allow-Credentials: true~n'),
+    format('Access-Control-Allow-Methods: POST, GET, OPTIONS~n'),
+    format('Access-Control-Allow-Headers: Content-Type~n'),
+    format('Content-Length: 0~n~n').
 
 % Inicialização do servidor na porta 6357
 :- initialization main.
@@ -17,17 +26,23 @@ main :-
     server(6358).
 
 server(Port) :-
-    http_server(http_dispatch, [port(Port)]).
+    http_server(http_dispatch, [port(Port), allow_cors(true)]).
 
 % Manipulador de requisições POST
 handle_post_request(Request) :-
     member(method(post), Request), !,
+    cors_enable(Request, [methods([post])]),
     
     % Garante que a sessão está ativa para o cliente
     http_session_id(_SessionID),
 
     % Lê os dados da requisição, recebendo o número da questão
     http_read_data(Request, Data, [encoding(utf8)]),
+
+    % Definindo os headers para permitir CORS
+    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Access-Control-Allow-Credentials: true~n'),
+    format('Content-Type: application/json; charset=UTF-8'),
 
     (   % Caso seja a primeira requisição da questão
         member(questionNumber=QN, Data) 
@@ -36,10 +51,6 @@ handle_post_request(Request) :-
         
         http_session_assert(questionNumber(QN)),
         start_question(QN, FirstQuestion),
-
-        % Definindo os headers para permitir CORS
-        format('Access-Control-Allow-Origin: *~n'),
-        format('Content-Type: application/json; charset=UTF-8'),
 
         http_session_retractall(answers),
         http_session_assert(answers("Answers", [])),
@@ -52,14 +63,8 @@ handle_post_request(Request) :-
         % Garante que a sessão tenha a variável questionNumber
         ( http_session_data(questionNumber(QN)) ->
             continue_question(QN, Answer, NextQuestionOrResult),
-            
-            % Definindo os headers para permitir CORS
-            format('Access-Control-Allow-Origin: *~n'),
-            format('Content-Type: application/json; charset=UTF-8'),
-
             reply_json_dict(NextQuestionOrResult)
         ;   % Erro caso a sessão não tenha um questionNumber
-            format('Content-Type: application/json; charset=UTF-8'),
             reply_json_dict(_{error: "Número da questão não encontrado na sessão"})
         )
     ).
@@ -106,9 +111,15 @@ continue_question(QuestionNumber, Answer, Response) :-
 
 
 % Manipulador de requisições GET para obter o diagnóstico
-handle_get_diagnosis(_Request) :-
+handle_get_diagnosis(Request) :-
+    cors_enable(Request, [methods([get])]),
+
     % Garante que a sessão está ativa
     http_session_id(_SessionID),
+
+    % Definindo os headers para permitir CORS
+    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Content-Type: application/json; charset=UTF-8'),
     
     % Verifica se o número da questão e as respostas estão na sessão
     (   http_session_data(questionNumber(QuestionNumber)),
@@ -116,14 +127,9 @@ handle_get_diagnosis(_Request) :-
     ->  % Calcula o diagnóstico baseado nas respostas acumuladas
         atom_number(QuestionNumber, QN), 
         final_response(QN, AnswerList, Result),
-        
-        format('Access-Control-Allow-Origin: *~n'),
-        format('Content-Type: application/json; charset=UTF-8'),
         reply_json_dict(_{result: Result})
 
     ;   % Caso os dados da sessão estejam incompletos
-        format('Access-Control-Allow-Origin: *~n'),
-        format('Content-Type: application/json; charset=UTF-8'),
         reply_json_dict(_{error: "Número da questão ou respostas não encontradas na sessão"})
     ).
 

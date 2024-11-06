@@ -10,11 +10,10 @@ const StyledSelect = styled.select`
 
 const ExerciseDropdown: React.FC<any> = (props) => {
   const handleExercise = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log(e.target.value)
     props.actionProvider.handleFirstMessage(e.target.value);
   };
 
-  const exercises = [1024, 2048, 5096]
+  const exercises = [1024, 2048, 4096]
 
   return (
     <StyledSelect onChange={handleExercise} title="Selecione aqui">

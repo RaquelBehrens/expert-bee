@@ -7,17 +7,12 @@ const MessageParser = ({
   children: any;
   actions: {
     handleFirstMessage: (questionNumber?: string) => void;
-    handleUserInput: (questionNumber: string, answers: string[]) => void;
+    handleUserInput: (answer: string) => void;
   };
 }) => {
   
   const parse = (message: string) => {
-    actions.handleFirstMessage(message);
-    // if (message.includes("got it!")) {
-    //   actions.handleFirstMessage();
-    // } else {
-    //   actions.handleUserInput();
-    // }
+    actions.handleUserInput(message);
   };
 
   return (
