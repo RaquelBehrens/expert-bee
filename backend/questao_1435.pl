@@ -78,3 +78,9 @@ diagnostico(1435, Respostas, "Que legal! Parabéns!") :-
     Respostas = ["sim", "sim", "não", "sim", "sim", "sim", "sim"];
     Respostas = ["sim", "sim", "sim", "sim", "não", "sim", "sim"];
     Respostas = ["sim", "sim", "sim", "sim", "sim", "sim", "sim", "sim"].
+
+% Diagnóstico com base nas respostas completas
+diagnostico(1435, _, "Atente-se bem às dicas já enviadas ou pergunte novamente! Além disso, você pode \c
+                                usar o udebug para verificar a diferença entre as saídas do seu código, e as \c
+                                saídas esperadas pela questão! Também é uma boa ideia debugar seu código no Thonny, \c
+                                revisando linha por linha, ou usando prints para entender o que ele está executando!").

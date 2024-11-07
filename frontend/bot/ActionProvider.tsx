@@ -90,7 +90,6 @@ const ActionProvider = ({
   }
 
   const handleUserInput = async (answer: string) => {
-    let botMessage;
     let additionalMessages = [];
 
     try {
@@ -111,25 +110,34 @@ const ActionProvider = ({
       if (response.status === 200 && data) {
         if (question) {
           dispatch(addQuestion(question));
-          botMessage = createChatBotMessage(question, {
-            widget: "yesNo",
+
+          const lines = question.split('\n');
+          lines.forEach((line: string, index: number) => {
+              if (line.trim() !== "") {
+                  const isLastLine = index === lines.length - 1;
+                  const message = isLastLine
+                      ? createChatBotMessage(line, { widget: "yesNo" })
+                      : createChatBotMessage(line, {});
+
+                  additionalMessages.push(message);
+              }
           });
 
         } else if (result) {
-          botMessage = createChatBotMessage(result, {});
+          additionalMessages.push(createChatBotMessage(result, {}))
           const diagnosis = await handleEnd()
           if (diagnosis) additionalMessages.push(createChatBotMessage(diagnosis, {}));
           additionalMessages.push(createChatBotMessage(`Gostaria de tirar dúvidas novamente?`, { widget: "exerciseDropdown" }));
 
         } else {
-          botMessage = createChatBotMessage(error || "Mensagem inválida recebida.", {});
+          additionalMessages.push(createChatBotMessage(error || "Mensagem inválida recebida.", {}))
           additionalMessages.push(createChatBotMessage(`Gostaria de tirar dúvidas novamente?`, { widget: "exerciseDropdown" }));
         }
       } else {
-        botMessage = createChatBotMessage("Erro ao consultar o backend.", {});
+        additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}))
       } 
     } catch {
-      botMessage = createChatBotMessage("Erro ao consultar o backend.", {});
+      additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}))
     }
   
     setState((prev: {
@@ -146,7 +154,6 @@ const ActionProvider = ({
       ...prev,
       messages: [
         ...prev.messages, 
-        botMessage,
         ...additionalMessages
       ],
     }));

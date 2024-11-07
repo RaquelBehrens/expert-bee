@@ -12,11 +12,10 @@
 :- http_handler(root(diagnosis), handle_get_diagnosis, [method(get)]).
 :- http_handler(root(.), handle_options, [method(options)]).
 
-handle_options(_Request) :-
-    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+handle_options(Request) :-
+    cors_enable(Request, [methods([post, get, options])]),
+    format('Access-Control-Allow-Origin: http://localhost:5173~n'), 
     format('Access-Control-Allow-Credentials: true~n'),
-    format('Access-Control-Allow-Methods: POST, GET, OPTIONS~n'),
-    format('Access-Control-Allow-Headers: Content-Type~n'),
     format('Content-Length: 0~n~n').
 
 % Inicialização do servidor na porta 6357
@@ -31,29 +30,28 @@ server(Port) :-
 % Manipulador de requisições POST
 handle_post_request(Request) :-
     member(method(post), Request), !,
-    cors_enable(Request, [methods([post])]),
     
     % Garante que a sessão está ativa para o cliente
     http_session_id(_SessionID),
 
-    % Lê os dados da requisição, recebendo o número da questão
+    % Lê os dados da requisição
     http_read_data(Request, Data, [encoding(utf8)]),
 
     % Definindo os headers para permitir CORS
     format('Access-Control-Allow-Origin: http://localhost:5173~n'),
     format('Access-Control-Allow-Credentials: true~n'),
     format('Content-Type: application/json; charset=UTF-8'),
+    cors_enable(Request, [methods([post])]),
 
     (   % Caso seja a primeira requisição da questão
         member(questionNumber=QN, Data) 
     ->  % Inicializa a sessão e a questão
-        http_session_retractall(questionNumber),
+        http_session_retractall(questionNumber(_)),
+        http_session_retractall(answers("Answers", _)),
+        http_session_assert(answers("Answers", [])),
         
         http_session_assert(questionNumber(QN)),
         start_question(QN, FirstQuestion),
-
-        http_session_retractall(answers),
-        http_session_assert(answers("Answers", [])),
 
         reply_json_dict(_{question: FirstQuestion})
 
@@ -114,7 +112,7 @@ handle_get_diagnosis(Request) :-
     cors_enable(Request, [methods([get])]),
 
     % Garante que a sessão está ativa
-    http_session_id(SessionID),
+    http_session_id(_SessionID),
 
     % Definindo os headers para permitir CORS
     format('Access-Control-Allow-Origin: http://localhost:5173~n'),
@@ -131,9 +129,7 @@ handle_get_diagnosis(Request) :-
 
     ;   % Caso os dados da sessão estejam incompletos
         reply_json_dict(_{error: "Número da questão ou respostas não encontradas na sessão"})
-    ),
-    
-    http_close_session(SessionID).
+    ).
 
 % Predicado para determinar o diagnóstico final baseado nas respostas
 final_response(QuestionNumber, Answers, Result) :-
