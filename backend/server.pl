@@ -99,13 +99,12 @@ continue_question(QuestionNumber, Answer, Response) :-
     % Salva a resposta na sessão
     http_session_data(answers("Answers", AnswerList)),
     append(AnswerList, [AW], UpdatedAnswers),
+    http_session_retractall(answers("Answers", _)),
+    http_session_assert(answers("Answers", UpdatedAnswers)),
 
     % Chama a questão correspondente com a lista atualizada de respostas
     (   questao(QN, UpdatedAnswers, NextQuestion)
-    ->  Response = _{question: NextQuestion},
-        http_session_retractall(answers("Answers", _)),
-        http_session_assert(answers("Answers", UpdatedAnswers))
-
+    ->  Response = _{question: NextQuestion}
     ;   Response = _{result: "Fim"}
     ).
 
@@ -146,6 +145,9 @@ process_questao(QuestionNumber, Answers, Result) :-
     atom_concat(FileName, '.pl', FilePath),
     (   exists_file(FilePath)
     ->  ensure_loaded(FilePath),
-        diagnostico(QuestionNumber, Answers, Result)
+        (   diagnostico(QuestionNumber, Answers, Result)
+        ->  true
+        ;   Result = "Sem conclusão final."
+        )
     ;   Result = "Questão não encontrada."
     ).
