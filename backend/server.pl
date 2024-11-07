@@ -76,6 +76,9 @@ start_question(QuestionNumber, FirstQuestion) :-
     % Verifica se o arquivo existe antes de tentar carregá-lo
     (   exists_file(FilePath)
     ->  % Carrega dinamicamente o arquivo da questão
+        abolish(questao/3),
+        abolish(diagnostico/3),
+
         ensure_loaded(FilePath),
         atom_number(QuestionNumber, QN),        
         
@@ -140,7 +143,10 @@ process_questao(QuestionNumber, Answers, Result) :-
     atom_concat('questao_', QuestionNumber, FileName),
     atom_concat(FileName, '.pl', FilePath),
     (   exists_file(FilePath)
-    ->  ensure_loaded(FilePath),
+    ->  abolish(questao/3),
+        abolish(diagnostico/3),
+    
+        ensure_loaded(FilePath),
         (   diagnostico(QuestionNumber, Answers, Result)
         ->  true
         ;   Result = "Sem conclusão final."
