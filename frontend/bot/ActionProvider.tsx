@@ -1,8 +1,5 @@
 import React from "react";
 import { IMessageOptions } from "react-chatbot-kit/build/src/interfaces/IMessages";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../redux/store";
-import { addQuestion, startCount } from "../redux/features/messages-slice";
 
 
 const ActionProvider = ({
@@ -25,7 +22,7 @@ const ActionProvider = ({
   setState: any;
   children: any;
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
 
   const fetchData = async (url: string, body: URLSearchParams) => {
     try {
@@ -50,8 +47,10 @@ const ActionProvider = ({
     if (error) {
       additionalMessages.push(createChatBotMessage(error, {}));
     } else if (question) {
+      /* Exemplo de atualização do messages-slice, caso precise no futuro
       dispatch(addQuestion(question));
       setTimeout(() => dispatch(startCount(question.length)), 5000);
+      */
 
       const lines = question.split('\n');
       lines.forEach((line: string, index: number) => {
