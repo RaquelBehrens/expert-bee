@@ -17,7 +17,7 @@ const StyledChat = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100vh;
+  height: 95vh;
 
 
   .react-chatbot-kit-chat-container {
@@ -60,7 +60,7 @@ const StyledChat = styled.div`
       transition: 0.15s;
       &:active {
         transform: scale(0.95);
-        border-color: rgb(var(--primary-color));
+        border-color: rgb(var(--tertiary-color));
       }
     }
   }

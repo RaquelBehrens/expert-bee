@@ -1,7 +1,8 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState } from "react";
 import { createGlobalStyle } from "styled-components";
 import { AnimatePresence } from "framer-motion";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import Details from "./page/Details";
 
 const Chat = lazy(() => import("./page/Chat"));
 const NotFound = lazy(() => import("./page/404"));
@@ -12,7 +13,8 @@ const GlobalStyle = createGlobalStyle`
     --dark-color: 52 17 64;
     --primary-color: 106 36 131;
     --secondary-color: 169 87 190;
-    --tertiary-color: 25 195 125;
+    --tertiary-color: 230, 213, 14;
+    --quaternary-color: 245 243 213;
     --success-color: 3 179 10;
     --like-color: 16 110 190;
     --font-poppins: 'Poppins', system-ui, sans-serif;
@@ -82,13 +84,56 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: 100%;
   }
+  & .details-button {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 1000;
+    & > h1 {
+      font-size: 1rem;
+    }
+    & > button {
+      color:rgb(var(--dark-color));
+      background-color:rgb(var(--light-color));
+      margin-top: 1rem;
+      padding: 0.5rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 5rem;
+      border: 1px solid rgb(var(--dark-color));
+      transition: 0.15s;
+      &:active {
+        transform: scale(0.95);
+        border-color: rgb(var(--tertiary-color));
+      }
+    }
+  }
 `;
 
 const App = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const [isDetails, setIsDetails] = useState(location.pathname === "/details");
+
+  const handleToggleNavigation = () => {
+    if (isDetails) {
+      navigate("/");
+    } else {
+      navigate("/details");
+    }
+    setIsDetails(!isDetails);
+  };
+
   return (
     <>
       <GlobalStyle />
+      <div className="details-button">
+        <button onClick={handleToggleNavigation}>
+          {isDetails
+            ? "Voltar para a página inicial"
+            : "Clique aqui para ler sobre os tipos de resposta do Beecrowd!"}
+        </button>
+      </div>
       <Suspense
         fallback={
           <div
@@ -107,6 +152,7 @@ const App = () => {
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Chat />} />
+            <Route path="/details" element={<Details />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
