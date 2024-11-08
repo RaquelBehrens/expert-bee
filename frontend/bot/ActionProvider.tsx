@@ -27,50 +27,68 @@ const ActionProvider = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleFirstMessage = async (questionNumber?: string) => {
-    let additionalMessages = [];
-  
-    const exercise = questionNumber?.toString();
-
+  const fetchData = async (url: string, body: URLSearchParams) => {
     try {
-      const response = await fetch("http://localhost:6358/server", {
+      const response = await fetch(url, {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
         credentials: 'include',
-        body: new URLSearchParams({
-          questionNumber: exercise || '',
-        }),
+        body,
       });
-    
-      const data = await response.json();
-      const { question, result, error } = data;
-    
-      if (response.status === 200) {
-        if (question) {
-          dispatch(addQuestion(question));
-      
-          setTimeout(() => {
-            dispatch(startCount(question.length));
-          }, 5000);
 
-          additionalMessages.push(createChatBotMessage(question, {
-            widget: "yesNo",
-          }));
-        } else if (result || error) {
-            additionalMessages.push(createChatBotMessage(error || result, {}))
-            const diagnosis = await handleEnd()
-            if (diagnosis) additionalMessages.push(createChatBotMessage(diagnosis, {}));
-            additionalMessages.push(createChatBotMessage(`Gostaria de tirar dúvidas novamente?`, { widget: "exerciseDropdown" }));
-        }
-      } else {
-        additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}));
-      }
-    } catch {
-      additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}));
+      if (response.status !== 200) throw new Error("Erro ao consultar o backend.");
+
+      return await response.json();
+    } catch (error) {
+      return { error: "Erro ao consultar o backend." };
     }
-    
+  };
+
+  const handleMessageResponse = async (data: any, additionalMessages: any[]) => {
+    const { question, result, error } = data;
+
+    if (error) {
+      additionalMessages.push(createChatBotMessage(error, {}));
+    } else if (question) {
+      dispatch(addQuestion(question));
+      setTimeout(() => dispatch(startCount(question.length)), 5000);
+
+      const lines = question.split('\n');
+      lines.forEach((line: string, index: number) => {
+          if (line.trim() !== "") {
+              const isLastLine = index === lines.length - 1;
+              const message = isLastLine
+                  ? createChatBotMessage(line, { widget: "yesNo" })
+                  : createChatBotMessage(line, {});
+
+              additionalMessages.push(message);
+          }
+      });
+
+    } else if (result || error) {
+      additionalMessages.push(createChatBotMessage(error || result || "Mensagem inválida recebida.", {}));
+      const diagnosis = await handleEnd();
+      if (diagnosis) additionalMessages.push(createChatBotMessage(diagnosis, {}));
+      additionalMessages.push(createChatBotMessage("Gostaria de tirar dúvidas novamente?", { widget: "exerciseDropdown" }));
+    }
+  };
+
+  const handleFirstMessage = async (questionNumber?: string) => {
+    const body = new URLSearchParams({ questionNumber: questionNumber?.toString() || '' });
+    const data = await fetchData("http://localhost:6358/server", body);
+    let additionalMessages: {
+      messages: {
+        message: string;
+        type: string;
+        id: number;
+        loading?: boolean;
+        widget?: string | undefined;
+        delay?: number | undefined;
+        payload?: any;
+      }[];
+    }[] = [];
+
+    await handleMessageResponse(data, additionalMessages);    
   
     setState((prev: {
       messages: {
@@ -88,64 +106,22 @@ const ActionProvider = ({
     }));
   };
 
-  const handleYes = async () => {
-    handleUserInput("sim")
-  }
-
-  const handleNo = async () => {
-    handleUserInput("não")
-  }
-
   const handleUserInput = async (answer: string) => {
-    let additionalMessages = [];
+    const body = new URLSearchParams({ answer: answer.toLowerCase() });
+    const data = await fetchData("http://localhost:6358/server", body);
+    let additionalMessages: {
+      messages: {
+        message: string;
+        type: string;
+        id: number;
+        loading?: boolean;
+        widget?: string | undefined;
+        delay?: number | undefined;
+        payload?: any;
+      }[];
+    }[] = [];
 
-    try {
-      const response = await fetch("http://localhost:6358/server", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        },
-        credentials: 'include',
-        body: new URLSearchParams({
-          answer: answer.toLowerCase()
-        }),
-      });
-    
-      const data = await response.json();
-      const { question, result, error } = data;
-
-      if (response.status === 200 && data) {
-        if (question) {
-          dispatch(addQuestion(question));
-
-          const lines = question.split('\n');
-          lines.forEach((line: string, index: number) => {
-              if (line.trim() !== "") {
-                  const isLastLine = index === lines.length - 1;
-                  const message = isLastLine
-                      ? createChatBotMessage(line, { widget: "yesNo" })
-                      : createChatBotMessage(line, {});
-
-                  additionalMessages.push(message);
-              }
-          });
-
-        } else if (result) {
-          additionalMessages.push(createChatBotMessage(result, {}))
-          const diagnosis = await handleEnd()
-          if (diagnosis) additionalMessages.push(createChatBotMessage(diagnosis, {}));
-          additionalMessages.push(createChatBotMessage(`Gostaria de tirar dúvidas novamente?`, { widget: "exerciseDropdown" }));
-
-        } else {
-          additionalMessages.push(createChatBotMessage(error || "Mensagem inválida recebida.", {}))
-          additionalMessages.push(createChatBotMessage(`Gostaria de tirar dúvidas novamente?`, { widget: "exerciseDropdown" }));
-        }
-      } else {
-        additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}))
-      } 
-    } catch {
-      additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}))
-    }
+    await handleMessageResponse(data, additionalMessages);
   
     setState((prev: {
       messages: {
@@ -192,8 +168,8 @@ const ActionProvider = ({
         return React.cloneElement(child, {
           actions: {
             handleFirstMessage,
-            handleYes,
-            handleNo,
+            handleYes: () => handleUserInput("sim"),
+            handleNo: () => handleUserInput("não"),
             handleUserInput,
           },
         });
