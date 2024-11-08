@@ -13,7 +13,8 @@ const ExerciseDropdown: React.FC<any> = (props) => {
     props.actionProvider.handleFirstMessage(e.target.value);
   };
 
-  const exercises = [1435, 1187]
+  const exercises = [1181, 1184, 1185, 1187, 1383, 1435, 1715, 2465]
+  exercises.sort()
 
   return (
     <StyledSelect onChange={handleExercise} title="Selecione aqui">
