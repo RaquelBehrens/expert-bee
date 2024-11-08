@@ -12,7 +12,13 @@ const MessageParser = ({
 }) => {
   
   const parse = (message: string) => {
-    actions.handleUserInput(message);
+    const parsedMessage = parseInt(message, 10);
+    if (!isNaN(parsedMessage)) {
+      actions.handleFirstMessage(message);
+    } else {
+      if (message == 'nao') message = 'não'
+      actions.handleUserInput(message);
+    }
   };
 
   return (

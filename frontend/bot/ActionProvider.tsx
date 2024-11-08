@@ -28,7 +28,7 @@ const ActionProvider = ({
   const dispatch = useDispatch<AppDispatch>();
 
   const handleFirstMessage = async (questionNumber?: string) => {
-    let botMessage;
+    let additionalMessages = [];
   
     const exercise = questionNumber?.toString();
 
@@ -45,23 +45,30 @@ const ActionProvider = ({
       });
     
       const data = await response.json();
-      const question = data.question;
+      const { question, result, error } = data;
     
-      if (response.status === 200 && question) {
-        dispatch(addQuestion(question));
-    
-        setTimeout(() => {
-          dispatch(startCount(question.length));
-        }, 5000);
+      if (response.status === 200) {
+        if (question) {
+          dispatch(addQuestion(question));
+      
+          setTimeout(() => {
+            dispatch(startCount(question.length));
+          }, 5000);
 
-        botMessage = createChatBotMessage(question, {
-          widget: "yesNo",
-        });
+          additionalMessages.push(createChatBotMessage(question, {
+            widget: "yesNo",
+          }));
+        } else if (result || error) {
+            additionalMessages.push(createChatBotMessage(error || result, {}))
+            const diagnosis = await handleEnd()
+            if (diagnosis) additionalMessages.push(createChatBotMessage(diagnosis, {}));
+            additionalMessages.push(createChatBotMessage(`Gostaria de tirar dúvidas novamente?`, { widget: "exerciseDropdown" }));
+        }
       } else {
-        botMessage = createChatBotMessage("Erro ao consultar o backend.", {});
+        additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}));
       }
     } catch {
-      botMessage = createChatBotMessage("Erro ao consultar o backend.", {});
+      additionalMessages.push(createChatBotMessage("Erro ao consultar o backend.", {}));
     }
     
   
@@ -77,7 +84,7 @@ const ActionProvider = ({
       }[];
     }) => ({
       ...prev,
-      messages: [...prev.messages, botMessage],
+      messages: [...prev.messages, ...additionalMessages],
     }));
   };
 

@@ -53,7 +53,7 @@ handle_post_request(Request) :-
         http_session_assert(questionNumber(QN)),
         start_question(QN, FirstQuestion),
 
-        reply_json_dict(_{question: FirstQuestion})
+        reply_json_dict(FirstQuestion)
 
     ;   % Caso receba respostas subsequentes
         member(answer=Answer, Data),
@@ -83,10 +83,14 @@ start_question(QuestionNumber, FirstQuestion) :-
         atom_number(QuestionNumber, QN),        
         
         % Executa o predicado correspondente à questão com o número recebido
-        (   catch(call(questao(QN, [], FirstQuestion)), E2,
-                (FirstQuestion = "Erro ao processar a questão: " + E2))
+        (   catch(call(questao(QN, [], FirstQuestionResult)), E2,
+                (FirstQuestion = _{error: "Erro ao processar a questão: " + E2}))
+        ),
+        (   var(FirstQuestionResult) % Verifica se ocorreu erro na chamada
+        ->  FirstQuestion = _{error: "Erro desconhecido"}
+        ;   FirstQuestion = _{question: FirstQuestionResult}
         )
-    ;   FirstQuestion = "Questão não encontrada."
+    ;   FirstQuestion = _{error: "Questão não encontrada."}
     ).
 
 % Processa a resposta recebida e decide a próxima pergunta ou resultado final
