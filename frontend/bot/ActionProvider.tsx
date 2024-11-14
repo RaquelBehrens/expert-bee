@@ -44,14 +44,11 @@ const ActionProvider = ({
   const handleMessageResponse = async (data: any, additionalMessages: any[]) => {
     const { question, result, error } = data;
 
-    if (error) {
-      additionalMessages.push(createChatBotMessage(error, {}));
-    } else if (question) {
+    if (question) {
       /* Exemplo de atualização do messages-slice, caso precise no futuro
       dispatch(addQuestion(question));
       setTimeout(() => dispatch(startCount(question.length)), 5000);
       */
-
       const lines = question.split('\n');
       lines.forEach((line: string, index: number) => {
           if (line.trim() !== "") {
@@ -63,11 +60,8 @@ const ActionProvider = ({
               additionalMessages.push(message);
           }
       });
-
     } else if (result || error) {
       additionalMessages.push(createChatBotMessage(error || result || "Mensagem inválida recebida.", {}));
-      const diagnosis = await handleEnd();
-      if (diagnosis) additionalMessages.push(createChatBotMessage(diagnosis, {}));
       additionalMessages.push(createChatBotMessage("Gostaria de tirar dúvidas novamente?", { widget: "exerciseDropdown" }));
     }
   };
@@ -140,26 +134,6 @@ const ActionProvider = ({
       ],
     }));
   };  
-
-  const handleEnd = async () => {
-    try {
-      const response = await fetch("http://localhost:6358/diagnosis", {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        },
-        credentials: 'include',
-      });
-    
-      const data = await response.json();
-
-      if (response.status === 200 && data) {
-        return data.result
-      }
-    } catch {
-      return "Erro ao consultar resultado final."
-    }
-  }
 
   return (
     <div>

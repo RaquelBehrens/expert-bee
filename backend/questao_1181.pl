@@ -7,8 +7,8 @@ questao(1181, ["sim"], "Tome cuidado que a questão quer todos os elementos da l
                         ou todos os elementos de uma coluna. Mais uma dica sobre isso?").
 questao(1181, ["sim", "sim"], "Se sua matriz é feita de forma que é iterada assim: matriz[linha][coluna], verifique \c
                                 se o 'for' está correto. Quer saber como o for fica?").
-questao(1181, ["sim", "sim", "sim"], "considerando que l é a entrada do usuário que indica a linha que será ac
-                                        considerada para operação: \nfor i in range(0, 12): soma += matriz[l][i] \n\c
+questao(1181, ["sim", "sim", "sim"], "considerando que l é a entrada do usuário que indica a linha que será a \c
+                                        considerada para operação: \nfor i in range(0, 12): soma += matriz[l][i]. \n\c
                                         Próxima dica?").
 questao(1181, ["sim", "sim", "sim", "sim"], "Verifique se o número pelo qual você está tentando dividir para \c
                                              para conseguir a média está correto. Próxima pergunta?").
@@ -31,7 +31,7 @@ questao(1181, Respostas, "Perceba que a formatação que a questão pede é: Imp
 
 
 % Diagnóstico com base nas respostas completas
-diagnostico(1383, Respostas, "Legal! Parabéns!") :-
+diagnostico(1181, Respostas, "Legal! Parabéns!") :-
     Respostas = ["não", "sim", "sim"];
     Respostas = ["sim", "não", "sim", "sim"];
     Respostas = ["sim", "sim", "não", "sim", "sim"];

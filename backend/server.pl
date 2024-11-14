@@ -9,7 +9,6 @@
 
 % Define o handler para receber as requisições HTTP POST
 :- http_handler(root(server), handle_post_request, [method(post)]).
-:- http_handler(root(diagnosis), handle_get_diagnosis, [method(get)]).
 :- http_handler(root(.), handle_options, [method(options)]).
 
 handle_options(Request) :-
@@ -110,50 +109,9 @@ continue_question(QuestionNumber, Answer, Response) :-
     % Chama a questão correspondente com a lista atualizada de respostas
     (   questao(QN, UpdatedAnswers, NextQuestion)
     ->  Response = _{question: NextQuestion}
-    ;   Response = _{result: "Fim"}
-    ).
-
-
-% Manipulador de requisições GET para obter o diagnóstico
-handle_get_diagnosis(Request) :-
-    cors_enable(Request, [methods([get])]),
-
-    % Garante que a sessão está ativa
-    http_session_id(_SessionID),
-
-    % Definindo os headers para permitir CORS
-    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
-    format('Access-Control-Allow-Credentials: true~n'),
-    format('Content-Type: application/json; charset=UTF-8'),
-    
-    % Verifica se o número da questão e as respostas estão na sessão
-    (   http_session_data(questionNumber(QuestionNumber)),
-        http_session_data(answers("Answers", AnswerList))
-    ->  % Calcula o diagnóstico baseado nas respostas acumuladas
-        atom_number(QuestionNumber, QN), 
-        final_response(QN, AnswerList, Result),
-        reply_json_dict(_{result: Result})
-
-    ;   % Caso os dados da sessão estejam incompletos
-        reply_json_dict(_{error: "Número da questão ou respostas não encontradas na sessão"})
-    ).
-
-% Predicado para determinar o diagnóstico final baseado nas respostas
-final_response(QuestionNumber, Answers, Result) :-
-    process_questao(QuestionNumber, Answers, Result).
-
-% Função para processar o diagnóstico no arquivo `questao_numero.pl`
-process_questao(QuestionNumber, Answers, Result) :-
-    atom_concat('questao_', QuestionNumber, FileName),
-    atom_concat(FileName, '.pl', FilePath),
-    (   exists_file(FilePath)
-    ->  abolish(questao/3),
-        abolish(diagnostico/3),
-    
-        ensure_loaded(FilePath),
-        (   diagnostico(QuestionNumber, Answers, Result)
+    ;   (   diagnostico(QN, UpdatedAnswers, Result)
         ->  true
         ;   Result = "Sem conclusão final."
-        )
-    ;   Result = "Questão não encontrada."
+        ),
+        Response = _{result: Result}
     ).
