@@ -1,9 +1,19 @@
 # tcc-sistema-especialista-web
 
-O frontend dessa aplicação foi desenvolvido usando como base o projeto de (devsubid / Chatbot-using-React-Chatbot-Kit)[https://github.com/devsubid/Chatbot-using-React-Chatbot-Kit] e de (FredrikOseberg / react-chatbot-kit)[https://github.com/FredrikOseberg/react-chatbot-kit].
+O frontend desta aplicação foi desenvolvido com base nos projetos [devsubid/Chatbot-using-React-Chatbot-Kit](https://github.com/devsubid/Chatbot-using-React-Chatbot-Kit) e [FredrikOseberg/react-chatbot-kit](https://github.com/FredrikOseberg/react-chatbot-kit).
 
-Executa backend, por enquanto, com:
-`swipl server.pl`
+### Como executar:
 
-Executa frontend, por enquanto, com:
-`npm run dev`
+**Backend:**  
+Execute o backend com o comando:
+
+```bash
+swipl server.pl
+```
+
+**Frontend:**  
+Execute o frontend com o comando:
+
+```bash
+npm run dev
+```
