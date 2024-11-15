@@ -7,9 +7,9 @@ import beeHelper from "/bee_helper.svg";
 import user from "/user.svg";
 
 const config: IConfig = {
-  botName: "Beecrowd Specialist",
+  botName: "Beecrowd Expert",
   initialMessages: [
-    createChatBotMessage(`Olá! Bem-vindo ao Especialista do Beecrowd! Sobre qual questão você gostaria de tirar dúvidas?`, {
+    createChatBotMessage(`Olá! Bem-vindo ao Especialista em Beecrowd! Sobre qual questão você gostaria de tirar dúvidas?`, {
       widget: "exerciseDropdown",
     }),
   ],
