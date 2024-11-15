@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "styled-components";
 
 const StyledSelect = styled.select`
@@ -9,17 +9,30 @@ const StyledSelect = styled.select`
 `;
 
 const ExerciseDropdown: React.FC<any> = (props) => {
+  const [questions, setQuestions] = useState<number[]>([]);
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const response = await fetch("http://localhost:6358/questions"); // Atualize o URL conforme necessário
+        const data = await response.json();
+        setQuestions(data.sort());
+      } catch (error) {
+        console.error("Erro ao buscar exercícios:", error);
+      }
+    };
+
+    fetchExercises();
+  }, []);
+
   const handleExercise = (e: React.ChangeEvent<HTMLSelectElement>) => {
     props.actionProvider.handleFirstMessage(e.target.value);
   };
 
-  const exercises = [1181, 1184, 1185, 1187, 1383, 1435, 1715, 2465]
-  exercises.sort()
-
   return (
     <StyledSelect onChange={handleExercise} title="Selecione aqui">
       <option>Selecione aqui ou digite o número da questão</option>
-      {Array.from(exercises).map((exercise) => (
+      {Array.from(questions).map((exercise) => (
         <option key={exercise} value={exercise}>
           {exercise}
         </option>

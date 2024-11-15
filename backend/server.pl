@@ -7,8 +7,9 @@
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_cors)).
 
-% Define o handler para receber as requisições HTTP POST
+% Define o handler para receber as requisições HTTP
 :- http_handler(root(server), handle_post_request, [method(post)]).
+:- http_handler(root(questions), handle_get_questions, [method(get)]).
 :- http_handler(root(.), handle_options, [method(options)]).
 
 handle_options(Request) :-
@@ -66,7 +67,6 @@ handle_post_request(Request) :-
         )
     ).
 
-
 % Carrega o arquivo de questão com base no número e executa a questão correspondente
 start_question(QuestionNumber, FirstQuestion) :-
     atom_concat('questao_', QuestionNumber, FileName),
@@ -115,3 +115,35 @@ continue_question(QuestionNumber, Answer, Response) :-
         ),
         Response = _{result: Result}
     ).
+
+
+% Manipulador de requisições GET
+handle_get_questions(Request) :-
+    cors_enable(Request, [methods([get])]),
+
+    % Definindo os headers para permitir CORS
+    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Access-Control-Allow-Credentials: true~n'),
+    format('Content-Type: application/json; charset=UTF-8'),
+
+    working_directory(CWD, CWD),
+    find_question_files(CWD, QuestionNumbers),
+    reply_json(QuestionNumbers).
+
+% Encontrar arquivos de questão no diretório e extrair os números
+find_question_files(Directory, QuestionNumbers) :-
+    directory_files(Directory, Files), % Listar todos os arquivos no diretório
+    include(is_question_file, Files, QuestionFiles), % Filtrar arquivos no formato correto
+    maplist(extract_question_number, QuestionFiles, QuestionNumbers).
+
+% Verifica se o arquivo está no formato 'questao_{numero}.pl'
+is_question_file(File) :-
+    sub_string(File, _, _, _, 'questao_'),
+    sub_string(File, _, 3, 0, '.pl').
+
+% Extrair o número da questão a partir do nome do arquivo
+extract_question_number(File, Number) :-
+    sub_string(File, Start, Length, _, 'questao_'),
+    AfterPrefix is Start + Length,
+    sub_string(File, AfterPrefix, _, 3, NumberString), % Extrai o número antes do '.pl'
+    atom_number(NumberString, Number). % Converte para número.
