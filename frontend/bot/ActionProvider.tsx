@@ -53,15 +53,18 @@ const ActionProvider = ({
       lines.forEach((line: string, index: number) => {
           if (line.trim() !== "") {
               const isLastLine = index === lines.length - 1;
-              const message = isLastLine
-                  ? createChatBotMessage(line, { widget: "yesNo" })
-                  : createChatBotMessage(line, {});
-
-              additionalMessages.push(message);
+              const messageOptions = isLastLine ? { widget: "yesNo" } : {};
+              additionalMessages.push(createChatBotMessage(line, messageOptions));
           }
       });
     } else if (result || error) {
-      additionalMessages.push(createChatBotMessage(error || result || "Mensagem inválida recebida.", {}));
+      const responseText = result || error || "Mensagem inválida recebida.";
+      const lines = responseText.split('\n').filter((line: string) => line.trim() !== "");
+  
+      lines.forEach((line: string) => {
+        additionalMessages.push(createChatBotMessage(line, {}));
+      });
+
       additionalMessages.push(createChatBotMessage("Gostaria de tirar dúvidas novamente?", { widget: "exerciseDropdown" }));
     }
   };
