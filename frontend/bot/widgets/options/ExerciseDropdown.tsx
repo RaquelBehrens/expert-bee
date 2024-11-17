@@ -8,13 +8,15 @@ const StyledSelect = styled.select`
   appearance: none;
 `;
 
+const URL = import.meta.env.VITE_BACKEND_URL
+
 const ExerciseDropdown: React.FC<any> = (props) => {
   const [questions, setQuestions] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchExercises = async () => {
       try {
-        const response = await fetch("http://localhost:6358/questions"); // Atualize o URL conforme necessário
+        const response = await fetch(`${URL}/questions`); // Atualize o URL conforme necessário
         const data = await response.json();
         setQuestions(data.sort());
       } catch (error) {

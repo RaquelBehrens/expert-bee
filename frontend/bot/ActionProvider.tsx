@@ -1,6 +1,7 @@
 import React from "react";
 import { IMessageOptions } from "react-chatbot-kit/build/src/interfaces/IMessages";
 
+const URL = import.meta.env.VITE_BACKEND_URL
 
 const ActionProvider = ({
   createChatBotMessage,
@@ -71,7 +72,7 @@ const ActionProvider = ({
 
   const handleFirstMessage = async (questionNumber?: string) => {
     const body = new URLSearchParams({ questionNumber: questionNumber?.toString() || '' });
-    const data = await fetchData("http://localhost:6358/server", body);
+    const data = await fetchData(`${URL}/server`, body);
     let additionalMessages: {
       messages: {
         message: string;
@@ -104,7 +105,7 @@ const ActionProvider = ({
 
   const handleUserInput = async (answer: string) => {
     const body = new URLSearchParams({ answer: answer.toLowerCase() });
-    const data = await fetchData("http://localhost:6358/server", body);
+    const data = await fetchData(`${URL}/server`, body);
     let additionalMessages: {
       messages: {
         message: string;

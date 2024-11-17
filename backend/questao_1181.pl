@@ -1,7 +1,7 @@
 :- module(questao_1181, [questao/3, diagnostico/3]).
 
 % Predicado para fornecer perguntas com base na sequência de respostas
-questao(1181, [], "Você já desenvolveu sua solução, mas não está saíndo a resposta correta?").
+questao(1181, [], "Você já desenvolveu sua solução, mas não está saindo a resposta correta?").
 questao(1181, ["sim"], "Tome cuidado que a questão quer todos os elementos da linha, e não da coluna! Verifique \c
                         como você está iterando sobre a matriz: se está pegando todos os elementos de uma linha \c
                         ou todos os elementos de uma coluna. Mais uma dica sobre isso?").
