@@ -17,3 +17,11 @@ Execute o frontend com o comando:
 ```bash
 npm run dev
 ```
+
+### Docker
+
+[Seguir esses passos pra instalar docker-compose](https://medium.com/lffintech/how-to-install-docker-and-docker-compose-on-ubuntu-24-04-arm64-without-sudo-b60c33d3c86d)
+
+```bash
+sudo docker-compose up --build
+```
