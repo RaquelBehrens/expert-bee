@@ -7,9 +7,11 @@ services:
       dockerfile: Dockerfile
     container_name: backend-container
     ports:
-      - "6358:6358" # Mapeia a porta do host para o container
+      - "6358:6358"
+    networks:
+      - app-network
     volumes:
-      - ./backend:/app # Opcional, para permitir hot-reload no desenvolvimento
+      - ./backend:/app
 
   frontend:
     build:
@@ -17,8 +19,14 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-container
     ports:
-      - "5173:5173" # Mapeia a porta do host para o container
+      - "5173:5173"
+    networks:
+      - app-network
     depends_on:
-      - backend # Garante que o backend suba antes
+      - backend
     environment:
-      VITE_BACKEND_URL: "http://localhost:6358" # Variável de ambiente para conectar ao backend
+      VITE_BACKEND_URL: "http://localhost:6358"
+
+networks:
+  app-network:
+    driver: bridge
