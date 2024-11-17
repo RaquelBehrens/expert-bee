@@ -27,6 +27,19 @@ services:
     environment:
       VITE_BACKEND_URL: "http://localhost:6358"
 
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-container
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - app-network
+    depends_on:
+      - frontend
+      - backend
+
 networks:
   app-network:
     driver: bridge
