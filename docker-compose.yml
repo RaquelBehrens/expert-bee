@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-container
+    ports:
+      - "6358:6358" # Mapeia a porta do host para o container
+    volumes:
+      - ./backend:/app # Opcional, para permitir hot-reload no desenvolvimento
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-container
+    ports:
+      - "5173:5173" # Mapeia a porta do host para o container
+    depends_on:
+      - backend # Garante que o backend suba antes
+    environment:
+      VITE_BACKEND_URL: "http://localhost:6358" # Variável de ambiente para conectar ao backend
