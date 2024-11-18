@@ -22,8 +22,7 @@ handle_options(Request) :-
 :- initialization main.
 
 main :-
-    server(6358),
-    thread_get_message(_).
+    server(6358).
 
 server(Port) :-
     http_server(http_dispatch, [port(Port), allow_cors(true)]).
