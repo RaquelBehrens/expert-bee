@@ -4,23 +4,19 @@ O frontend desta aplicação foi desenvolvido com base nos projetos [devsubid/Ch
 
 ### Como executar:
 
-**Backend:**  
-Execute o backend com o comando:
-
-```bash
-swipl server.pl
-```
-
-**Frontend:**  
-Execute o frontend com o comando:
-
-```bash
-npm run dev
-```
-
-### Docker
+**Instale docker e docker-compose:**  
 
 [Seguir esses passos pra instalar docker-compose](https://medium.com/lffintech/how-to-install-docker-and-docker-compose-on-ubuntu-24-04-arm64-without-sudo-b60c33d3c86d)
+
+**Instale nginx:**  
+Execute o nginx com os comandos:
+
+```bash
+sudo apt update
+sudo apt install nginx
+```
+
+**Suba os containeres:**
 
 ```bash
 sudo docker-compose up --build

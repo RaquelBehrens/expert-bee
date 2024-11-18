@@ -12,9 +12,14 @@
 :- http_handler(root(questions), handle_get_questions, [method(get)]).
 :- http_handler(root(.), handle_options, [method(options)]).
 
+get_frontend_url(URL) :-
+    getenv('VITE_FRONTEND_URL', URL).
+
 handle_options(Request) :-
+    get_frontend_url(FrontendUrl),
+
     cors_enable(Request, [methods([post, get, options])]),
-    format('Access-Control-Allow-Origin: http://localhost:5173~n'), 
+    format('Access-Control-Allow-Origin: ~w~n', [FrontendUrl]),
     format('Access-Control-Allow-Credentials: true~n'),
     format('Content-Length: 0~n~n').
 
@@ -37,8 +42,10 @@ handle_post_request(Request) :-
     % Lê os dados da requisição
     http_read_data(Request, Data, [encoding(utf8)]),
 
+    get_frontend_url(FrontendUrl),
+
     % Definindo os headers para permitir CORS
-    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Access-Control-Allow-Origin: ~w~n', [FrontendUrl]),
     format('Access-Control-Allow-Credentials: true~n'),
     format('Content-Type: application/json; charset=UTF-8'),
     cors_enable(Request, [methods([post])]),
@@ -121,8 +128,10 @@ continue_question(QuestionNumber, Answer, Response) :-
 handle_get_questions(Request) :-
     cors_enable(Request, [methods([get])]),
 
+    get_frontend_url(FrontendUrl),
+
     % Definindo os headers para permitir CORS
-    format('Access-Control-Allow-Origin: http://localhost:5173~n'),
+    format('Access-Control-Allow-Origin: ~w~n', [FrontendUrl]),
     format('Access-Control-Allow-Credentials: true~n'),
     format('Content-Type: application/json; charset=UTF-8'),
 

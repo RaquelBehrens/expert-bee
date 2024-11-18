@@ -1,7 +1,7 @@
 :- module(questao_1184, [questao/3, diagnostico/3]).
 
 % Predicado para fornecer perguntas com base na sequência de respostas
-questao(1184, [], "Você já desenvolveu sua solução, mas não está saíndo a resposta correta?").
+questao(1184, [], "Você já desenvolveu sua solução, mas não está saindo a resposta correta?").
 questao(1184, ["sim"], "Você quer os elementos abaixo da diagonal principal. Ou seja, você vai percorrer por \c
                         todas as linhas, mas até o elemento com o mesmo índice do número da linha da coluna. \c
                         Por exemplo, se você estiver na linha 0, você não quer nenhum elemento daquela linha; \c
