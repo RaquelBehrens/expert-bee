@@ -65,7 +65,6 @@ const StyledChat = styled.div`
     }
   }
   & > div:not(.intro) {
-    margin: 1rem;
     & .react-chatbot-kit-chat-inner-container {
       border: 1px solid rgb(var(--dark-color) / 0.25);
       border-radius: 1rem;
