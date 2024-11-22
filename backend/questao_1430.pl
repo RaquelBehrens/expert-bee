@@ -5,6 +5,9 @@ questao(1430, [], "Você quer uma dica de qual solução adotar pra esse problem
 questao(1430, ["sim"], "Nesse problema, você deve primeiramente armazenar a tabela dada no enunciado como um dicionário, assim você vai conseguir \c
                         rapidamente descobrir a duração de cada nota. \nUma vez que souber isso, basta acumular o valor de cada nota num mesmo compasso.\n\c
                         Note que, na leitura, você pode utilizar diretamente o input().split('/') para quebrar os compassos pelo /. \n\c
+                        A função .split() do Python divide uma string em partes menores (substrings) com base no separador enviado. \c
+                        Por exemplo, se executar 'maçã/banana/laranja'.split('/'), vai criar a lista ['maçã', 'banana', 'laranja']. Caso não \c
+                        seja enviado um separador, a função .split() usa espaços em branco como padrão.\n\c
                         Após isso, basta percorrer cada compasso acumulando a soma das notas. \nPor fim, ao terminar de percorrer um compasso, \c
                         verifique se a soma das notas dele é igual a 1. \nCuide para comparar números com ponto decimal, assim \c
                         a solução é verificar se a diferença de 1 e a soma das notas é menor que um certo decimal muito pequeno.\nDeu certo?").

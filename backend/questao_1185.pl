@@ -1,7 +1,7 @@
 :- module(questao_1185, [questao/3, diagnostico/3]).
 
 % Predicado para fornecer perguntas com base na sequência de respostas
-questao(1185, [], "Você já desenvolveu sua solução, mas não está saíndo a resposta correta?").
+questao(1185, [], "Você já desenvolveu sua solução, mas não está saindo a resposta correta?").
 questao(1185, ["sim"], "Você quer os elementos acima da diagonal secundária. Ou seja, você vai percorrer por \c
                         todas as linhas, mas até o último elemento da coluna menos o índice do número da linha. \c
                         Por exemplo, se você estiver na linha 0, você todos os elementos daquela linha; se você estiver \c
